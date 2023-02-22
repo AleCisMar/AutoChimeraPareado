@@ -1,0 +1,49 @@
+
+################### RESUMEN ###################
+
+Este programa utiliza Chimera y automatiza (opcionalmente también las comparaciones pareadas con MatchMaker) la extracción de los valores de Laln y RMSD con Match->Align (para poder calcular SAS=100RMSD/Laln que se usa para las matrices de similitud estructural).
+
+###############################################
+
+La carpeta debe contener los archivos LEEME, renamepdbchain.pl, pares.sh, pares.pl, matchmaker.cmd y alinear.py
+
+NOTA IMPORTANTE: Cada archivo PDB debe contener exclusivamente la cadena A (puede que sea necesario reemplazar el nombre de la cadena x por A. De esto se encarga de manera automática renamepdbchain.pl)
+
+###############################################
+
+Ejecución: bash pares.sh
+
+Durante la ejecución ignorar mensajes de error. Revisar el archivo log.out para seguir el progreso de la ejecución. 
+
+El orden del encabezado de la tabla final es: query,subject,laln,qscore,rmsd,sdm (qscore y sdm son otras medidas de distancia estructural calculadas automáticamente por Chimera)
+
+###############################################
+
+Descripción de los programas:
+
+>>>pares.sh
+	-Renombra las cadenas a A con el script renamepdbchain.pl
+	-Crea un archivo lista.txt que contiene la lista de archivos pdb presentes en el directorio de trabajo
+	-Corre pares.pl
+		>>>pares.pl
+			-Lee el archivo lista.txt y genera dos archivos de salida
+			-out1.txt contiene la lista de querys
+			-out2.txt contiene la lista de subjects
+	-Pega los archivos de salida de pares.pl, out1.txt y out2.txt, y los guarda en pares.txt
+	-Borra lista.txt, out1.txt y out2.txt
+	-Crea el script alineador.sh
+		>>>alineador.sh
+			-Ejecuta chimera que abre cada par de estructuras indicadas en pares.txt
+			-Alinea las estructuras por pares con matchmaker.cmd
+				>>>matchmaker.cmd
+					-Realiza alineamientos pareados con MatchMaker usando el algoritmo Smith-Waterman y la matriz BLOSUM30
+			-A cada par de estructuras alineadas le hace el análisis del programa alinear.py
+				>>>alinear.py
+					-Calcula el RMSD y la longitud del alineamiento con Match->Align a partir de las estructuras previamente superpuestas
+			-Crea el archivo log.out
+
+	-Borra pares.txt
+	-Borra alineador.sh
+	-Crea tabla de resultados tabla.csv
+
+###############################################
